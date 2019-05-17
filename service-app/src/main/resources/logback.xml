@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+	<statusListener class="ch.qos.logback.core.status.NopStatusListener" />
+	<include resource="org/springframework/boot/logging/logback/defaults.xml" />
+
+	<springProperty scope="context" name="app-name" source="spring.application.name"/>
+	<springProperty scope="context" name="logfilepath" source="logging.file:logs/console_${app-name}.log"/>
+
+	<property name="CONSOLE_LOG_PATTERN" value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"/>
+	<!--<property name="CONSOLE_LOG_PATTERN" value="%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"/>-->
+
+	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>${CONSOLE_LOG_PATTERN}</pattern>
+		</encoder>
+	</appender>
+
+	<!--<appender name="DAILY_ROLLING_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">-->
+		<!--<file>logs/console_${app-name}.log</file>-->
+		<!--<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">-->
+			<!--<fileNamePattern>logs/archive/console_${app-name}.%d{yyyy-MM-dd}.log</fileNamePattern>-->
+			<!--<maxHistory>7</maxHistory>-->
+		<!--</rollingPolicy>-->
+		<!--<encoder>-->
+			<!--<pattern>${CONSOLE_LOG_PATTERN}</pattern>-->
+		<!--</encoder>-->
+	<!--</appender>-->
+
+	<appender name="LOGSTASH_TCP" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+		<destination>logstash:9600</destination>
+		<encoder class="net.logstash.logback.encoder.LogstashEncoder">
+			<includeMdcKeyName>${HOSTNAME}</includeMdcKeyName>
+		</encoder>
+	</appender>
+
+	<!--<appender name="CONSOLE_JSON" class="ch.qos.logback.core.ConsoleAppender">-->
+		<!--<encoder class="net.logstash.logback.encoder.LogstashEncoder" />-->
+	<!--</appender>-->
+
+	<root level="INFO">
+		<appender-ref ref="CONSOLE" />
+		<!--<appender-ref ref="DAILY_ROLLING_FILE" />-->
+		<!--<appender-ref ref="CONSOLE_JSON" />-->
+		<appender-ref ref="LOGSTASH_TCP" />
+	</root>
+
+</configuration>
